@@ -1,0 +1,77 @@
+Updating and distributing encryption keys
+
+
+Title: Updating and distributing encryption keys.
+
+Abstract: System and method for providing secure communications is provided. Initially, an exchange protocol, such as a password-authenticated key exchange protocol, is used to create a shared secret. From the shared secret, two keys are created: a utilized key and a stored key. The utilized key is used to encrypt messages between nodes. When it is time to replace the utilized key to maintain security, the stored key is utilized to encrypt messages for generating/distributing a new shared secret. The new shared secret is then used to generate a new utilized key and a new stored key. This process may be repeated any number of times to maintain security. ...
+
+
+
+USPTO Applicaton #: #20100042841 
+Inventors: Neal King, Vladimir Oksman, Charles Bry
+
+
+The Patent Description & Claims data below is from USPTO Patent Application 20100042841, Updating and distributing encryption keys.
+
+TECHNICAL FIELD - Top of Page
+The present invention relates generally to a system and method for providing security to communication networks and, more particularly, to a system and method for generating and distributing encryption keys.
+
+BACKGROUND - Top of Page
+In order to provide confidentiality to communications among nodes of a network, it is well known to provide encryption for the messages. In general, it is best to provide a different encryption key for each pair of communicating nodes, so that the messages of such a pair-wise communication are private to that pair. In this manner, a third node, even if it is exposed to the message (as will generally happen in a network operating on a shared medium), will be unable to decrypt and understand this communication.
+
+The encryption keys, however, must be provided to each pair of nodes before the encryption keys may be used to encrypt communications. It is most important that the encryption keys be provided to the communicating nodes in a secure manner, since if a third node learns the pair's encryption keys, the third node will be able to intercept and decrypt communications between the communicating nodes, thereby violating their privacy. Unfortunately, the most convenient method for exchanging the confidential encryption keys is the network itself.
+
+Accordingly, a first problem with providing secure communications between two nodes is the ability to communicate, over a shared medium, confidential information (such as encryption keys) that enables encryption between two nodes of the network, without that confidential information being made available to other nodes.
+
+A second problem is that even if the confidential information is communicated between nodes without being compromised, the use of the confidential information to encrypt messages over time may allow a third node to derive the confidential information, thereby allowing the third node to intercept and decrypt future communications. The more messages encrypted with a particular key that are sent, the more material becomes available to an attacker attempting to discover the key. Given enough time and material, any encryption system can be broken. It is therefore necessary, from time to time, to replace the encryption keys used by each pair; and this replacement must also be done in a way that preserves confidentiality.
+
+Generally, there are two modes in which an attacker can violate confidentiality. In a passive mode, commonly referred to as “eavesdropping,” the attacker learns the encryption key being used by a pair of nodes, and simply reads the information being passed back and forth.
+
+In another mode, the attacker is able to prevent direct contact between the two nodes of the pair and can interpose itself between them. This can happen, for example, if the two nodes of the pair are in disjoint networks or sub-networks, for which the attacker's node is serving as a relay. In this scenario, every communication from one node to the other node passes through the attacker's node. In that case, if the attacker learns the pair's encryption key, it is possible for the attacker's node to interfere directly in the pair's communications by blocking or altering these communications. This mode is commonly referred to as “playing Man-in-the-Middle” (MitM).
+
+Asymmetric public-key encryption has been used to allow a node A to send a pair-wise key to a second node B. The pair-wise key is encrypted using the public key of node B, which is available to anyone; but it can only be decrypted by using the private key of node B, which only B knows. With the proper selection of public and private keys, the discovery of the private key is rendered computationally infeasible.
+
+A problem with applying this approach is that it is vital that each node have a unique private key—not merely unique within the network, but unique throughout the world. Otherwise, it would be possible for an attacker to learn the private key of target node B by finding another entity that is using the same public key. To prevent this, asymmetric public-key encryption pairs must be purchased and managed.
+
+One attempt to provide secure communications is a symmetric public-key encryption technique. In one example known as the Diffie-Hellman exchange, nodes A and B securely negotiate an encryption key using public messages. Generally, two numbers, p and g, are publicly known as parameters characteristic of the exchange; and each node selects a particular number (e.g., Ra for node A and Rb for node B) that each node uses to derive a value (e.g., gRa mod p for A and gRb mod p for B). These derived values are communicated to each other unsecured and unencrypted over the communications network, so that node A knows Ra and gRb mod p, and node B knows Rb and gRa mod p. Both node A and node B are then able to calculate the quantity g(Ra*Rb) mod p, which can thus be used in an agreed-upon manner to generate the pair-wise key which is used to encrypt future communications between nodes A and B. A third node, however, that only knows (gRa mod p) and (gRb mod p) is not able to calculate the quantity g(Ra*Rb) mod p.
+
+The Diffie-Hellman exchange protocol discussed above is relatively safe against passive eavesdroppers, because of the computational difficulty of solving this so-called “discrete logarithm problem.” A third node will not be able to learn the pair-wise key from simply observing this exchange, even though it is not encrypted. This type of solution, however, may not provide secure communications against a MitM attack.
+
+For example, if a third node, e.g., node C, is serving as a relay node between nodes A and B, node C can play MitM by intercepting messages between nodes A and B. Upon receipt of a message from node A, node C engages in a Diffie-Hellman exchange with node A. Node C also engages in a Diffie-Hellman exchange with node B. Node C can further alter the address-field parameters of packets sent to nodes A and B, so the address of node C does not appear in the packets, and nodes A and B are unaware that communications are being held with node C rather than with each other.
+
+In another attempt, the Diffie-Hellman exchange protocol has been enhanced for protection against the MitM problem. One system is referred to as the password-authenticated key (PAK) exchange protocol. In this protocol, the Diffie-Hellman exchange is conducted with messages that are encrypted by using a password that is known both to node A and to node B, but not to node C. Node C cannot interfere in the exchange between nodes A and B, because node C cannot interpret the exchanged messages.
+
+The price for this safety from a MitM attack is that the password that is shared by nodes A and B must be communicated between them before performing the Diffie-Hellman exchange. Because of the need for complete secrecy of the password, the password should not be communicated over the communications network where it may be intercepted by node C. Often times, this process of distributing the password is slow and inefficient; in general, it should be used only rarely.
+
+Furthermore, although the PAK exchange protocol is safe against a MitM attack, the pair-wise key must still be replaced eventually, since its use creates material for attack. If one were sure that the pair-wise key had not yet been discovered by an attacker, it would be adequate to conduct the normal Diffie-Hellman exchange to generate the new pair-wise key using the current pair-wise key to encrypt messages in the exchange. However, if there were the possibility that the current key had already been discovered, this would not be safe, because the attacker could use the relay node C to step into the exchange and play MitM. The change of key would then not be able to “shake off” node C.
+
+Since one could never really be sure that the key had not been discovered, over the duration of its use, the safe way to proceed is to use the PAK exchange again. However, this also has risks. For example, the encryption provided by multiplying a message by a fixed password is relatively weak, and if the PAK exchange is to be used every time the pair-wise key is replaced, the password itself is at risk of being discovered, because each message sent utilizing the password in the encryption provides more material for an attacker to discover the password itself.
+
+Thus, when using the PAK exchange protocol to set up the pair-wise keys, if one also uses it to replace these keys, there is the risk of exposing the password by over-use. Yet, if one does not use the PAK exchange, but only the Diffie-Hellman exchange unprotected by the password, there is the risk of a node C playing MitM.
+
+Accordingly, there is a need for a system and a method for updating and distributing encryption keys which avoids the two problems described above.
+
+SUMMARY - Top of Page
+OF THE INVENTION
+These and other problems are generally solved or circumvented, and technical advantages are generally achieved, by preferred embodiments of the present invention which provides a secure system and method for generating and distributing encryption keys.
+
+In accordance with a preferred embodiment of the present invention, a method for providing secure communications is provided. The method includes generating a shared secret known to a first node and a second node. The shared secret is used to generate a utilized key and a stored key. The utilized key is used to encrypt messages between the first node and the second node. At some point, a new shared secret is generated and a new utilized key and a new stored key is derived from the new shared secret. The new utilized key is then used to encrypt further messages.
+
+In accordance with another preferred embodiment of the present invention, a method of communicating with a network node is provided. The method includes generating a shared secret, and generating a first key and a second key based at least in part on the shared secret. Messages are encrypted using the first key. A step of replacing the shared secret, the first key, and the second key is performed. The step of replacing the shared secret includes encrypting one or more messages using the second key.
+
+In accordance with another preferred embodiment of the present invention, a computer program product for providing secure communications is provided. The computer program product includes computer program code for deriving a shared secret, deriving a utilized key and a stored key, and for encrypting messages with the utilized key. When it is time to replace the utilized key for encrypting messages, the computer program product includes computer program code for generating a new shared secret using the stored key to encrypt any messages sent in the process. From the new shared secret, the computer program product includes computer program code for deriving a new utilized key and a new stored key. The new utilized key is used thereafter to encrypt messages.
+
+BRIEF DESCRIPTION OF THE DRAWINGS - Top of Page
+For a more complete understanding of the present invention, and the advantages thereof, reference is now made to the following descriptions taken in conjunction with the accompanying drawing, in which:
+
+FIG. 1 is a network diagram embodying features of the present invention;
+
+FIG. 2 is another network diagram embodying features of the present invention;
+
+FIG. 3 is a flow chart for creating and distributing encryption keys in accordance with an embodiment of the present invention;
+
+FIG. 4 is a message flow diagram for creating and distributing encryption keys in accordance with an embodiment of the present invention;
+
+FIG. 5 is a flow chart for creating and distributing encryption keys in accordance with another embodiment of the present invention; and
+
+FIG. 6 is a message flow diagram for creating and distributing encryption keys in accordance with another embodiment of the present invention.
